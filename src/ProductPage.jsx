@@ -1,4 +1,30 @@
+import { useEffect, useMemo, useState } from "react";
+import "./detail.css";
+import { useParams } from "react-router";
 export default function ProductPage() {
+  const params = useParams();
+  console.log(params);
+  const [product, setProduct] = useState(null);
+  const [selectedImage, setSelectedImage] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
+  const discountedPrice = useMemo(() => {
+    if (!product) return 0;
+    return (
+      product.price -
+      (product.price * (product.discountPercentage || 0)) / 100
+    ).toFixed(2);
+  }, [product]);
+  useEffect(() => {
+    fetch(`https://dummyjson.com/products/${params.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProduct(data);
+        setSelectedImage(data?.images?.[0] || data?.thumbnail || "");
+        console.log(data);
+      });
+  }, []);
+  if (product == null) return null;
   return (
     <div className="detail-page">
       <div className="detail-breadcrumb">
@@ -12,19 +38,27 @@ export default function ProductPage() {
       <section className="detail-layout">
         <div className="detail-gallery-card">
           <div className="detail-main-image-wrap">
-            <img src={selectedImage} alt={product.title} className="detail-main-image" />
+            <img
+              src={selectedImage}
+              alt={product.title}
+              className="detail-main-image"
+            />
           </div>
 
-          {images.length > 1 && (
+          {product.images.length > 1 && (
             <div className="detail-thumbs">
-              {images.map((image, index) => (
+              {product.images.map((image, index) => (
                 <button
                   key={`${image}-${index}`}
                   className={`detail-thumb-btn ${selectedImage === image ? "active" : ""}`}
                   onClick={() => setSelectedImage(image)}
                   type="button"
                 >
-                  <img src={image} alt={`${product.title} ${index + 1}`} className="detail-thumb-image" />
+                  <img
+                    src={image}
+                    alt={`${product.title} ${index + 1}`}
+                    className="detail-thumb-image"
+                  />
                 </button>
               ))}
             </div>
@@ -34,7 +68,9 @@ export default function ProductPage() {
         <div className="detail-info-card">
           <div className="detail-badge-row">
             <span className="detail-badge">In stock</span>
-            {product.brand && <span className="detail-badge soft">{product.brand}</span>}
+            {product.brand && (
+              <span className="detail-badge soft">{product.brand}</span>
+            )}
           </div>
 
           <h1 className="detail-title">{product.title}</h1>
@@ -42,7 +78,9 @@ export default function ProductPage() {
           <div className="detail-rating-row">
             <span className="detail-rating">⭐ {product.rating || 0}</span>
             <span className="detail-divider">•</span>
-            <span className="detail-meta-text">SKU: {product.sku || product.id || "N/A"}</span>
+            <span className="detail-meta-text">
+              SKU: {product.sku || product.id || "N/A"}
+            </span>
           </div>
 
           <div className="detail-price-box">
@@ -52,7 +90,9 @@ export default function ProductPage() {
               {product.discountPercentage > 0 && (
                 <>
                   <span className="detail-old-price">${product.price}</span>
-                  <span className="detail-discount">-{Math.round(product.discountPercentage)}%</span>
+                  <span className="detail-discount">
+                    -{Math.round(product.discountPercentage)}%
+                  </span>
                 </>
               )}
             </div>
@@ -60,7 +100,9 @@ export default function ProductPage() {
             <p className="detail-tax-note">Free shipping · Secure checkout</p>
           </div>
 
-          <p className="detail-description">{product.description || "No description available."}</p>
+          <p className="detail-description">
+            {product.description || "No description available."}
+          </p>
 
           <div className="detail-meta-grid">
             <div className="detail-meta-item">
@@ -70,7 +112,9 @@ export default function ProductPage() {
 
             <div className="detail-meta-item">
               <span className="label">Availability</span>
-              <span className="value">{product.stock > 0 ? `${product.stock} left` : "Out of stock"}</span>
+              <span className="value">
+                {product.stock > 0 ? `${product.stock} left` : "Out of stock"}
+              </span>
             </div>
 
             <div className="detail-meta-item">
@@ -86,11 +130,17 @@ export default function ProductPage() {
 
           <div className="detail-actions">
             <div className="qty-box">
-              <button type="button" onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}>
+              <button
+                type="button"
+                onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+              >
                 -
               </button>
               <span>{quantity}</span>
-              <button type="button" onClick={() => setQuantity((prev) => prev + 1)}>
+              <button
+                type="button"
+                onClick={() => setQuantity((prev) => prev + 1)}
+              >
                 +
               </button>
             </div>
@@ -109,12 +159,18 @@ export default function ProductPage() {
       <section className="detail-extra-grid">
         <div className="detail-section-card">
           <h3>Product details</h3>
-          <p>Designed to match the clean shop layout with soft borders, rounded cards, and a minimal product-focused structure.</p>
+          <p>
+            Designed to match the clean shop layout with soft borders, rounded
+            cards, and a minimal product-focused structure.
+          </p>
         </div>
 
         <div className="detail-section-card">
           <h3>Delivery & returns</h3>
-          <p>Free shipping on selected items. Easy returns within 14 days if the product is unused and in original condition.</p>
+          <p>
+            Free shipping on selected items. Easy returns within 14 days if the
+            product is unused and in original condition.
+          </p>
         </div>
       </section>
     </div>

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
+import { Link, NavLink } from "react-router";
 
-export default function Header({ setselCat, selCat }) {
+export default function Header() {
   const [categories, setCategories] = useState([]);
   useEffect(() => {
     fetch("https://dummyjson.com/products/categories")
       .then((response) => response.json())
       .then((data) => {
         setCategories(data.slice(0, 5));
-        console.log(data);
       })
       .catch((err) => {
         console.error("Failed to load categories:", err);
@@ -29,30 +29,26 @@ export default function Header({ setselCat, selCat }) {
         <div className="container category-nav-inner">
           <ul className="category-list">
             <li>
-              <a
-                className={selCat == null ? "active" : null}
-                href="#"
-                onClick={async () => {
-                  setselCat(null);
-                
+              <NavLink
+                to="/"
+                className={({ isActive }) => {
+                  return isActive ? "active" : "";
                 }}
               >
                 Home
-              </a>
+              </NavLink>
             </li>
             {categories.map((category) => {
               return (
                 <li key={category.slug}>
-                  <a
-                    className={selCat == category ? "active" : null}
-                    href="#"
-                    onClick={async () => {
-                      setselCat(category);
-                      
+                  <NavLink
+                    className={({ isActive }) => {
+                      return isActive ? "active" : "";
                     }}
+                    to={`/category/${category.slug}`}
                   >
                     {category.name}
-                  </a>
+                  </NavLink>
                 </li>
               );
             })}

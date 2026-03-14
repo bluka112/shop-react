@@ -1,109 +1,18 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { useEffect, useState } from "react";
 import Header from "./header";
-import Product from "./product";
-import { BrowserRouter,Routes, Route } from "react-router";
-
-function App() {
-  const [product, setProduct] = useState([]);
-  const [selCat, setselCat] = useState(null);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  useEffect(() => {
-    if (selCat == null) {
-      fetch(`https://dummyjson.com/products?skip=${(page - 1) * 30}`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          setTotal(Math.ceil(data.total / 30));
-          setProduct(data.products);
-        })
-        .catch((err) => {
-          console.error("Failed to load categories:", err);
-        });
-    } else {
-      fetch(`${selCat.url}?skip=${(page - 1) * 30}`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          setTotal(Math.ceil(data.total / 30));
-          setProduct(data.products);
-        });
-    }
-  }, [page, selCat]);
-  useEffect(() => {
-    setPage(1);
-  }, [selCat]);
-
-  return (
-    <>
-      {" "}
-      <Header setProduct={setProduct} setselCat={setselCat} selCat={selCat} />
-      <main className="container">
-        <section className="page-head">
-          <h1 className="page-title">
-            {selCat == null ? "All products" : selCat.name}
-          </h1>
-          <p className="page-subtitle">
-            Products will be shown here (render/loop on your own).
-          </p>
-        </section>
-
-        <section className="product-grid" aria-label="Product list">
-          {product.map((item) => {
-            return <Product item={item} key={item.id} />;
-          })}
-        </section>
-        <div className="pagination">
-          {page != 1 && (
-            <a
-              className="page-btn prev"
-              href="#"
-              onClick={() => setPage(page - 1)}
-            >
-              Previous
-            </a>
-          )}
-          {Array.from({ length: total }).map((_, index) => {
-            return (
-              <a
-                key={index}
-                className={
-                  page == index + 1 ? "page-number active" : "page-number"
-                }
-                href="#"
-                onClick={() => {
-                  setPage(index + 1);
-                }}
-              >
-                {index + 1}
-              </a>
-            );
-          })}
-
-          {/* <span className="dots">...</span> */}
-          {page != total && (
-            <a
-              className="page-btn next"
-              href="#"
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </a>
-          )}
-        </div>
-      </main>
-      <footer className="footer">
-        © MyShop — Categories &amp; Products Layout
-      </footer>
-    </>
-  );
-}
+import { BrowserRouter, Routes, Route } from "react-router";
+import ProductPage from "./ProductPage";
+import Home from "./home";
+import Category from "./category";
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
+    <Header />
     <Routes>
-      <Route path="/" element={<App />} />
+      <Route path="/product/:id" element={<ProductPage />} />
+      <Route path="/category/:slug" element={<Category />} />
+      <Route path="/" element={<Home />} />
     </Routes>
+    <footer className="footer">© MyShop — Categories &amp; Products</footer>
   </BrowserRouter>,
 );
